@@ -1,24 +1,30 @@
-import logo from './logo.svg';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 
+// Import your marketplace homepage component
+import MarketplaceHomepage from './NonAuth/Home';
+import LoginPage from './NonAuth/login';
+import SignUpPage from './NonAuth/signup';
+import UserDashboard from './Utilisateur/Home';
+import ConnectedUserHomepage from './Utilisateur/Home';
+import UserProfilePage from './Utilisateur/Profile';
+import AdminDashboard from './Admin/Home';
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="App">
+        <Routes>
+          {/* Home route - displays your marketplace homepage */}
+          <Route path="/" element={<MarketplaceHomepage />} />
+           <Route path="/login" element={<LoginPage/>} />
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/User/home" element={<ConnectedUserHomepage />} />
+          <Route path="/User/Profile" element={<UserProfilePage />} />
+          <Route path="/Admin/Home" element={<AdminDashboard />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

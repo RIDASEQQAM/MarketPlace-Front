@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administration - MarketPlace</title>
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <!-- Logo -->
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <span class="logo-text">MarketPlace Admin</span>
+            </div>
+
+            <!-- Admin Info -->
+            <div class="admin-info">
+                <div class="admin-details">
+                    <span class="admin-name" id="adminName">Admin</span>
+                    <span class="admin-role">Administrateur</span>
+                </div>
+                <div class="admin-avatar" id="adminAvatar">A</div>
+                <button class="logout-btn" onclick="handleLogout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Déconnexion
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <h3 class="nav-title">Principal</h3>
+                    <button class="nav-item active" data-section="dashboard">
+                        <i class="fas fa-chart-dashboard"></i>
+                        <span>Tableau de bord</span>
+                    </button>
+                </div>
+                
+                <div class="nav-section">
+                    <h3 class="nav-title">Gestion</h3>
+                    <button class="nav-item" data-section="users">
+                        <i class="fas fa-users"></i>
+                        <span>Utilisateurs</span>
+                        <span class="badge" id="usersBadge">0</span>
+                    </button>
+                    <button class="nav-item" data-section="listings">
+                        <i class="fas fa-list"></i>
+                        <span>Annonces</span>
+                        <span class="badge" id="listingsBadge">0</span>
+                    </button>
+                    <button class="nav-item" data-section="categories">
+                        <i class="fas fa-tags"></i>
+                        <span>Catégories</span>
+                        <span class="badge" id="categoriesBadge">0</span>
+                    </button>
+                </div>
+                
+               
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="content-section active">
+                <div class="section-header">
+                    <h1>Tableau de bord</h1>
+                    <p>Vue d'ensemble de la plateforme</p>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon users">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalUsers">0</h3>
+                            <p>Utilisateurs totaux</p>
+                            <span class="stat-change positive">+12% ce mois</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon listings">
+                            <i class="fas fa-list"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalListings">0</h3>
+                            <p>Annonces totales</p>
+                            <span class="stat-change positive">+8% ce mois</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon active-listings">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="activeListings">0</h3>
+                            <p>Annonces actives</p>
+                            <span class="stat-change neutral">Stable</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon categories">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalCategories">0</h3>
+                            <p>Catégories</p>
+                            <span class="stat-change positive">+2 nouvelles</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h2>Activité récente</h2>
+                            <button class="refresh-btn" onclick="adminDashboard.loadRecentActivity()">
+                                <i class="fas fa-refresh"></i>
+                            </button>
+                        </div>
+                        <div class="activity-list" id="recentActivity">
+                            <p style="text-align: center; color: #6b7280; padding: 2rem;">Chargement...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-card">
+                        <div class="card-header">
+                            <h2>Annonces en attente</h2>
+                            <span class="pending-count" id="pendingCount">0</span>
+                        </div>
+                        <div class="pending-list" id="pendingListings">
+                            <p style="text-align: center; color: #6b7280; padding: 2rem;">Chargement...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Users Section -->
+            <section id="users" class="content-section">
+                <div class="section-header">
+                    <h1>Gestion des utilisateurs</h1>
+                    <div class="section-actions">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="usersSearch" placeholder="Rechercher un utilisateur...">
+                        </div>
+                        <button class="filter-btn">
+                            <i class="fas fa-filter"></i>
+                            Filtres
+                        </button>
+                    </div>
+                </div>
+                <p style="text-align: center; color: #6b7280; padding: 4rem;">Section utilisateurs en développement</p>
+            </section>
+
+            <!-- Listings Section -->
+            <section id="listings" class="content-section">
+                <div class="section-header">
+                    <h1>Gestion des annonces</h1>
+                    <div class="section-actions">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="listingsSearch" placeholder="Rechercher une annonce...">
+                        </div>
+                        <button class="filter-btn">
+                            <i class="fas fa-filter"></i>
+                            Filtres
+                        </button>
+                    </div>
+                </div>
+                <p style="text-align: center; color: #6b7280; padding: 4rem;">Section annonces en développement</p>
+            </section>
+
+            <!-- Categories Section -->
+            <section id="categories" class="content-section">
+                <div class="section-header">
+                    <h1>Gestion des catégories</h1>
+                    <button class="primary-btn">
+                        <i class="fas fa-plus"></i>
+                        Nouvelle catégorie
+                    </button>
+                </div>
+                <p style="text-align: center; color: #6b7280; padding: 4rem;">Section catégories en développement</p>
+            </section>
+
+            <!-- Analytics Section -->
+            <section id="analytics" class="content-section">
+                <div class="section-header">
+                    <h1>Statistiques et analyses</h1>
+                    <div class="date-range-picker">
+                        <input type="date" id="startDate">
+                        <span>à</span>
+                        <input type="date" id="endDate">
+                        <button class="apply-btn">Appliquer</button>
+                    </div>
+                </div>
+                <p style="text-align: center; color: #6b7280; padding: 4rem;">Section analytics en développement</p>
+            </section>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loader">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Chargement...</p>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer">
+        <!-- Toasts will be added here -->
+    </div>
+
+    <!-- Scripts -->
+    <script src="AdminDashboard.js"></script>
+
+    <!-- Script d'initialisation et de test -->
+    <script>
+        console.log('🧪 Création d\'un utilisateur admin pour les tests...');
+        
+        // Créer un utilisateur admin de test
+        const testAdmin = {
+            id: 1,
+            prenom: 'Admin',
+            nom: 'Test',
+            email: 'admin@marketplace.com',
+            role: 'Admin',
+            telephone: '0123456789',
+            adresse: 'Rabat, Maroc'
+        };
+        
+        // Sauvegarder dans localStorage
+        localStorage.setItem('user', JSON.stringify(testAdmin));
+        localStorage.setItem('token', 'admin-test-token-123');
+        
+        console.log('✅ Utilisateur admin test créé:', testAdmin);
+        console.log('📦 Données sauvées dans localStorage');
+        
+        // Vérifier que ça marche
+        const savedUser = localStorage.getItem('user');
+        console.log('🔍 Vérification - User récupéré:', JSON.parse(savedUser));
+
+        // Test de connectivité backend
+        setTimeout(() => {
+            console.log('🔌 Test de connectivité backend...');
+            fetch('http://localhost:8080/admin/users/count')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('✅ Backend connecté:', data);
+                    if (window.adminDashboard) {
+                        window.adminDashboard.showToast('success', 'Connexion', 'Backend connecté avec succès');
+                    }
+                })
+                .catch(error => {
+                    console.log('❌ Backend non accessible:', error);
+                    if (window.adminDashboard) {
+                        window.adminDashboard.showToast('error', 'Connexion', 'Impossible de se connecter au backend');
+                    }
+                });
+        }, 2000);
+
+        // Debug helper
+        window.debugAdmin = function() {
+            console.log('=== DEBUG ADMIN DASHBOARD ===');
+            console.log('Instance:', window.adminDashboard);
+            console.log('État:', window.adminDashboard?.state);
+            console.log('Utilisateur:', JSON.parse(localStorage.getItem('user') || '{}'));
+            console.log('=============================');
+        };
+
+        // Manual reload helper
+        window.reloadDashboard = function() {
+            if (window.adminDashboard) {
+                console.log('🔄 Rechargement manuel du dashboard...');
+                window.adminDashboard.loadDashboardData();
+            }
+        };
+
+        console.log('💡 Commandes de debug disponibles:');
+        console.log('   debugAdmin() - Affiche l\'état du dashboard');
+        console.log('   reloadDashboard() - Recharge les données');
+    </script>
+
+    <!-- Style pour les messages de debug -->
+    <style>
+        .debug-info {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background: #1f2937;
+            color: #10b981;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</body>
+</html>
