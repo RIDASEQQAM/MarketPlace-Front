@@ -1,7 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Heart, Star, MapPin, User, Bell, ShoppingCart, Menu, Zap, TrendingUp, Award } from 'lucide-react';
+import { Search, Filter, Heart, Star, MapPin, User, Bell, ShoppingCart, Menu, Zap, TrendingUp, Award, Settings, LogOut, Key, Bell as BellIcon, Edit } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const MarketplaceHomepage = () => {
+  // Cart popup state and fake items (single declaration)
+  const [showCart, setShowCart] = React.useState(false);
+  const [cartItems] = React.useState([
+    {
+      name: 'iPhone 13 Pro Max',
+      price: '12,999 DH',
+      image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100&h=100&fit=crop'
+    },
+    {
+      name: 'iPhone 16',
+      price: '18,999 DH',
+      image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100&h=100&fit=crop'
+    },
+    {
+      name: 'MacBook Pro 16"',
+      price: '28,999 DH',
+      image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=100&h=100&fit=crop'
+    },
+    {
+      name: 'iPhone 15',
+      price: '15,499 DH',
+      image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=100&h=100&fit=crop'
+    }
+  ]);
+
+  // Close cart popup when clicking outside
+  React.useEffect(() => {
+    if (!showCart) return;
+    const handleClick = (e) => {
+      if (!e.target.closest('.cart-popup')) {
+        setShowCart(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [showCart]);
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [favorites, setFavorites] = useState(new Set());
   const [categories, setCategories] = useState([]);
@@ -15,22 +53,26 @@ const MarketplaceHomepage = () => {
     activeListings: '98%',
     support: '24/7'
   });
-    const [showNotifications, setShowNotifications] = useState(false);
-    const [notifications, setNotifications] = useState([
-      { id: 1, text: "You got a message from client 'Ahmed' on WhatsApp.", unread: true },
-      { id: 2, text: "Your item 'iPhone 13' received a new offer.", unread: true },
-      { id: 3, text: "Order #12345 has been shipped.", unread: false },
-      { id: 4, text: "Your payment was successful.", unread: false },
-      { id: 5, text: "Seller 'Sara' replied to your question.", unread: true }
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([
+      { id: 1, type: 'message', text: "You got a message from client 'Ahmed' on WhatsApp.", unread: true, color: '#25D366', icon: '💬' },
+      { id: 2, type: 'sold', text: "Your item 'iPhone 13' was sold!", unread: true, color: '#F59E0B', icon: '🛒' },
+      { id: 3, type: 'offer', text: "Your item 'MacBook Pro' received a new offer.", unread: true, color: '#3B82F6', icon: '💰' },
+      { id: 4, type: 'shipped', text: "Order #12345 has been shipped.", unread: false, color: '#10B981', icon: '🚚' },
+      { id: 5, type: 'payment', text: "Your payment was successful.", unread: false, color: '#8B5CF6', icon: '✅' },
+      { id: 6, type: 'reply', text: "Seller 'Sara' replied to your question.", unread: true, color: '#EC4899', icon: '📩' }
     ]);
-    const unreadCount = notifications.filter(n => n.unread).length;
-    const handleBellClick = () => {
-      setShowNotifications(!showNotifications);
-      // Mark all as read when opened
-      if (!showNotifications) {
-        setNotifications(notifications.map(n => ({ ...n, unread: false })));
-      }
-    };
+  const [showSettings, setShowSettings] = useState(false);
+  const unreadCount = notifications.filter(n => n.unread).length;
+  const handleBellClick = () => {
+    setShowNotifications(!showNotifications);
+    // Mark all as read when opened
+    if (!showNotifications) {
+      setNotifications(notifications.map(n => ({ ...n, unread: false })));
+    }
+  };
+
+
 
   // API Base URL - adjust according to your backend port
   const API_BASE_URL = 'http://localhost:8080';
@@ -1092,15 +1134,195 @@ const MarketplaceHomepage = () => {
 
           {/* Navigation */}
           <div style={styles.navContainer}>
-            <button style={styles.navButton}>
-              <Bell size={24} />
-            </button>
+            {/* Notification Bell */}
+            <div style={{ position: 'relative', display: 'inline-block' }}>
+              <button style={styles.navButton} onClick={handleBellClick}>
+                <Bell size={24} />
+                {unreadCount > 0 && (
+                  <span style={{
+                    position: 'absolute',
+                    top: 2,
+                    right: 2,
+                    width: 10,
+                    height: 10,
+                    background: 'red',
+                    borderRadius: '50%',
+                    display: 'inline-block',
+                    border: '2px solid white',
+                  }}></span>
+                )}
+              </button>
+              {showNotifications && (
+                <div style={{
+                  position: 'absolute',
+                  top: 32,
+                  right: 0,
+                  width: 320,
+                  background: 'white',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+                  borderRadius: 12,
+                  zIndex: 100,
+                  padding: 16,
+                }}>
+                  <h4 style={{ margin: '0 0 12px 0', fontWeight: 'bold', fontSize: '1.1rem', color: '#1e1b4b' }}>Notifications</h4>
+                  {notifications.length === 0 ? (
+                    <div style={{ color: '#888' }}>No notifications</div>
+                  ) : (
+                    notifications.map(n => (
+                      <div key={n.id} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 12,
+                        padding: '10px 0',
+                        borderBottom: '1px solid #eee',
+                        background: n.unread ? `${n.color}22` : 'transparent',
+                        color: n.unread ? n.color : '#888',
+                        fontWeight: n.unread ? 'bold' : 'normal',
+                        borderRadius: 8,
+                        transition: 'background 0.2s',
+                      }}>
+                        <span style={{ fontSize: 22 }}>{n.icon}</span>
+                        <span style={{ flex: 1 }}>{n.text}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+            {/* Settings Icon */}
+            <div style={{ position: 'relative', display: 'inline-block' }}>
+              <button style={styles.navButton} onClick={() => setShowSettings(!showSettings)}>
+                <Settings size={24} />
+              </button>
+              {showSettings && (
+                <div style={{
+                  position: 'absolute',
+                  top: 32,
+                  right: 0,
+                  width: 220,
+                  background: 'white',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+                  borderRadius: 12,
+                  zIndex: 100,
+                  padding: 12,
+                }}>
+                  <h4 style={{ margin: '0 0 10px 0', fontWeight: 'bold', fontSize: '1.05rem', color: '#1e1b4b' }}>Settings</h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <button
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 10,
+                        background: '#F3F4F6', border: 'none', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', fontSize: '1rem', color: '#1e1b4b', fontWeight: 500
+                      }}
+                      onClick={() => {
+                        setShowSettings(false);
+                        navigate('/edit-profile');
+                      }}
+                    >
+                      <Edit size={18} /> Edit Profile
+                    </button>
+                    <button style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      background: '#F3F4F6', border: 'none', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', fontSize: '1rem', color: '#1e1b4b', fontWeight: 500
+                    }}>
+                      <Key size={18} /> Change Password
+                    </button>
+                    <button style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      background: '#F3F4F6', border: 'none', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', fontSize: '1rem', color: '#1e1b4b', fontWeight: 500
+                    }}>
+                      <BellIcon size={18} /> Notification Preferences
+                    </button>
+                    <button style={{
+                      display: 'flex', alignItems: 'center', gap: 10,
+                      background: '#F3F4F6', border: 'none', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', fontSize: '1rem', color: '#EF4444', fontWeight: 500
+                    }} onClick={handleSignOut}>
+                      <LogOut size={18} /> Logout
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
             <button style={styles.navButton}>
               <Heart size={24} />
             </button>
-            <button style={styles.navButton}>
-              <ShoppingCart size={24} />
-            </button>
+            {/* Cart Icon and Popup */}
+            <div style={{ position: 'relative', display: 'inline-block' }}>
+              <button style={styles.navButton} onClick={() => setShowCart((prev) => !prev)}>
+                <ShoppingCart size={24} />
+                {cartItems && cartItems.length > 0 && (
+                  <span style={{
+                    position: 'absolute',
+                    top: 2,
+                    right: 2,
+                    minWidth: 16,
+                    height: 16,
+                    background: '#8B5CF6',
+                    color: 'white',
+                    borderRadius: '50%',
+                    fontSize: 11,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '2px solid white',
+                    fontWeight: 600
+                  }}>{cartItems.length}</span>
+                )}
+              </button>
+              {showCart && (
+                <div className="cart-popup" style={{
+                  position: 'absolute',
+                  top: 32,
+                  right: 0,
+                  width: 320,
+                  background: 'white',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+                  borderRadius: 12,
+                  zIndex: 100,
+                  padding: 16,
+                  minHeight: 120
+                }}>
+                  <h4 style={{ margin: '0 0 12px 0', fontWeight: 'bold', fontSize: '1.1rem', color: '#1e1b4b' }}>Cart</h4>
+                  {cartItems.length === 0 ? (
+                    <div style={{ color: '#888' }}>Your cart is empty</div>
+                  ) : (
+                    <>
+                      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                        {cartItems.map((item, idx) => (
+                          <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid #eee' }}>
+                            <img src={item.image} alt={item.name} style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', background: '#f3f4f6' }} />
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontWeight: 500, color: '#1e1b4b' }}>{item.name}</div>
+                              <div style={{ color: '#8B5CF6', fontWeight: 600 }}>{item.price}</div>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                      <button style={{
+                        width: '100%',
+                        marginTop: 16,
+                        background: 'linear-gradient(135deg, #10B981, #3B82F6)',
+                        color: 'white',
+                        padding: '0.75rem',
+                        borderRadius: '0.75rem',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                        fontSize: '1rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 10
+                        }} onClick={() => navigate('/checkout')}>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-2.21 0-4 1.79-4 4m8 0c0-2.21-1.79-4-4-4m0 8c2.21 0 4-1.79 4-4m-8 0c0 2.21 1.79 4 4 4m0-8V4m0 16v-4" /><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" /><text x="7" y="16" fontSize="8" fill="currentColor" fontFamily="Arial">$</text></svg>
+                          Checkout
+                        </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+
             {user ? (
               <>
                 <span style={styles.userGreeting}>
@@ -1332,8 +1554,8 @@ const MarketplaceHomepage = () => {
         </div>
       </section>
 
-      /* Stats Section */
-      <section style={styles.statsSection}>
+  {/* Stats Section */}
+  <section style={styles.statsSection}>
         <div style={styles.sectionContainer}>
           <div style={styles.statsGrid}>
             <div>
@@ -1375,16 +1597,29 @@ const MarketplaceHomepage = () => {
               <h4 style={styles.footerTitle}>Quick Links</h4>
               <ul style={styles.footerList}>
                 <li style={styles.footerListItem}>
-                  <a href="#" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Browse All</a>
+                  <button type="button" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Browse All</button>
                 </li>
                 <li style={styles.footerListItem}>
-                  <a href="#" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Sell Item</a>
+                  <button type="button" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Sell Item</button>
                 </li>
                 <li style={styles.footerListItem}>
-                  <a href="#" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>My Account</a>
+                  <button type="button" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>My Account</button>
                 </li>
                 <li style={styles.footerListItem}>
-                  <a href="#" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Favorites</a>
+                  <button type="button" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Favorites</button>
+                </li>
+                {/* Fake items for demonstration */}
+                <li style={styles.footerListItem}>
+                  <button type="button" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>iPhone 13 Pro Max</button>
+                </li>
+                <li style={styles.footerListItem}>
+                  <button type="button" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Nike Air Max 2025</button>
+                </li>
+                <li style={styles.footerListItem}>
+                  <button type="button" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>MacBook Pro 16"</button>
+                </li>
+                <li style={styles.footerListItem}>
+                  <button type="button" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Canon EOS Camera</button>
                 </li>
               </ul>
             </div>
@@ -1392,16 +1627,16 @@ const MarketplaceHomepage = () => {
               <h4 style={styles.footerTitle}>Support</h4>
               <ul style={styles.footerList}>
                 <li style={styles.footerListItem}>
-                  <a href="#" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Help Center</a>
+                  <button type="button" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Help Center</button>
                 </li>
                 <li style={styles.footerListItem}>
-                  <a href="#" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Contact Us</a>
+                  <button type="button" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Contact Us</button>
                 </li>
                 <li style={styles.footerListItem}>
-                  <a href="#" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Safety Tips</a>
+                  <button type="button" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Safety Tips</button>
                 </li>
                 <li style={styles.footerListItem}>
-                  <a href="#" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Community</a>
+                  <button type="button" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Community</button>
                 </li>
               </ul>
             </div>
@@ -1409,16 +1644,16 @@ const MarketplaceHomepage = () => {
               <h4 style={styles.footerTitle}>Legal</h4>
               <ul style={styles.footerList}>
                 <li style={styles.footerListItem}>
-                  <a href="#" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Privacy Policy</a>
+                  <button type="button" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Privacy Policy</button>
                 </li>
                 <li style={styles.footerListItem}>
-                  <a href="#" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Terms of Service</a>
+                  <button type="button" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Terms of Service</button>
                 </li>
                 <li style={styles.footerListItem}>
-                  <a href="#" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Cookie Policy</a>
+                  <button type="button" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Cookie Policy</button>
                 </li>
                 <li style={styles.footerListItem}>
-                  <a href="#" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Accessibility</a>
+                  <button type="button" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Accessibility</button>
                 </li>
               </ul>
             </div>
@@ -1428,9 +1663,9 @@ const MarketplaceHomepage = () => {
               © 2025 MarketPlace. Tous droits réservés.
             </p>
             <div style={styles.socialLinks}>
-              <a href="#" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Facebook</a>
-              <a href="#" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Twitter</a>
-              <a href="#" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Instagram</a>
+              <button type="button" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Facebook</button>
+              <button type="button" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Twitter</button>
+              <button type="button" style={styles.footerLink} onMouseEnter={(e) => e.target.style.color = 'white'} onMouseLeave={(e) => e.target.style.color = '#94a3b8'}>Instagram</button>
             </div>
           </div>
         </div>
