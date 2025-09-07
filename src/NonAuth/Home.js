@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Heart, Star, MapPin, User, Bell, ShoppingCart, Menu, Zap, TrendingUp, Award, Settings, LogOut, Key, Bell as BellIcon, Edit } from 'lucide-react';
+import { Search, Filter, Heart, Star, MapPin, User, Bell, ShoppingCart, Menu, Zap, TrendingUp, Award } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const MarketplaceHomepage = () => {
+  // Set loading to false after initial render to prevent stuck loading screen
+  useEffect(() => {
+    setLoading(false);
+  }, []);
   // Cart popup state and fake items (single declaration)
   const [showCart, setShowCart] = React.useState(false);
   const [cartItems] = React.useState([
@@ -55,14 +59,9 @@ const MarketplaceHomepage = () => {
   });
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([
-      { id: 1, type: 'message', text: "You got a message from client 'Ahmed' on WhatsApp.", unread: true, color: '#25D366', icon: '💬' },
-      { id: 2, type: 'sold', text: "Your item 'iPhone 13' was sold!", unread: true, color: '#F59E0B', icon: '🛒' },
-      { id: 3, type: 'offer', text: "Your item 'MacBook Pro' received a new offer.", unread: true, color: '#3B82F6', icon: '💰' },
-      { id: 4, type: 'shipped', text: "Order #12345 has been shipped.", unread: false, color: '#10B981', icon: '🚚' },
-      { id: 5, type: 'payment', text: "Your payment was successful.", unread: false, color: '#8B5CF6', icon: '✅' },
-      { id: 6, type: 'reply', text: "Seller 'Sara' replied to your question.", unread: true, color: '#EC4899', icon: '📩' }
-    ]);
-  const [showSettings, setShowSettings] = useState(false);
+    { id: 1, type: 'message', text: "You got a message from client 'Ahmed' on WhatsApp.", unread: true, color: '#25D366', icon: '💬' },
+    { id: 6, type: 'reply', text: "Seller 'Sara' replied to your question.", unread: true, color: '#EC4899', icon: '📩' }
+  ]);
   const unreadCount = notifications.filter(n => n.unread).length;
   const handleBellClick = () => {
     setShowNotifications(!showNotifications);
@@ -79,160 +78,21 @@ const MarketplaceHomepage = () => {
 
   // Load user from localStorage on component mount
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
       try {
-        setUser(JSON.parse(savedUser));
+        setUser(JSON.parse(storedUser));
       } catch (e) {
-        console.error('Error parsing user from localStorage:', e);
-        localStorage.removeItem('user');
+        setUser(null);
       }
     }
   }, []);
-
-  // Fetch data on component mount
-  useEffect(() => {
-    fetchInitialData();
-  }, []);
-
-  // Fetch user favorites when user changes
-  useEffect(() => {
-    if (user && user.id) {
-      fetchUserFavorites();
-    }
-  }, [user]);
-
-  const fetchInitialData = async () => {
-    try {
-      setLoading(true);
-      await Promise.all([
-        fetchCategories(),
-        fetchFeaturedListings(),
-        fetchStatistics()
-      ]);
-    } catch (err) {
-      setError('Error loading data');
-      console.error('Error fetching initial data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchStatistics = async () => {
-    try {
-      // Fetch real statistics from admin endpoints
-      const [usersResponse, annoncesResponse, categoriesResponse] = await Promise.all([
-        fetch(`${API_BASE_URL}/admin/users/count`),
-        fetch(`${API_BASE_URL}/admin/annonces/count`),
-        fetch(`${API_BASE_URL}/admin/categories/count`)
-      ]);
-
-      let stats = {
-        totalUsers: '2.5M+',
-        totalListings: '500K+',
-        activeListings: '98%',
-        support: '24/7'
-      };
-
-      if (usersResponse.ok) {
-        const usersData = await usersResponse.json();
-        if (usersData.success && usersData.data) {
-          const total = usersData.data.total;
-          stats.totalUsers = formatNumber(total);
-        }
-      }
-
-      if (annoncesResponse.ok) {
-        const annoncesData = await annoncesResponse.json();
-        if (annoncesData.success && annoncesData.data) {
-          const total = annoncesData.data.total;
-          const active = annoncesData.data.active;
-          stats.totalListings = formatNumber(total);
-          if (total > 0) {
-            stats.activeListings = Math.round((active / total) * 100) + '%';
-          }
-        }
-      }
-
-      if (categoriesResponse.ok) {
-        const categoriesData = await categoriesResponse.json();
-        if (categoriesData.success && categoriesData.data) {
-          // You can use this data if needed
-        }
-      }
-
-      setStatistics(stats);
-    } catch (error) {
-      console.error('Error fetching statistics:', error);
-      // Keep default values if API fails
-      setStatistics({
-        totalUsers: '2.5M+',
-        totalListings: '500K+',
-        activeListings: '98%',
-        support: '24/7'
-      });
-    }
-  };
 
   const handleCategoryClick = async (categoryId) => {
     try {
-      setLoading(true);
-      const userId = user?.id || '';
-      const response = await fetch(
-        `${API_BASE_URL}/api/user/annonces/feed?categoryId=${categoryId}&page=0&size=6${userId ? `&userId=${userId}` : ''}`
-      );
-      
-      if (response.ok) {
-        const responseData = await response.json();
-        if (responseData.success && responseData.data && responseData.data.content) {
-          const transformedResults = responseData.data.content.map((annonce, index) => ({
-            id: annonce.id,
-            title: annonce.titre,
-            price: `${annonce.prix} DH`,
-            originalPrice: annonce.prix ? `${(annonce.prix * 1.2).toFixed(0)} DH` : null,
-            image: annonce.imageUrl || getPlaceholderImage(annonce.categorieNom),
-            seller: annonce.vendeur ? `${annonce.vendeur.prenom} ${annonce.vendeur.nom}` : 'Vendeur',
-            rating: annonce.rating || (4.5 + Math.random() * 0.4).toFixed(1),
-            reviews: annonce.reviewCount || Math.floor(Math.random() * 200) + 20,
-            location: annonce.vendeur?.adresse || 'Morocco',
-            badge: getBadgeForListing(index),
-            discount: calculateDiscount(annonce.prix, annonce.prix * 1.2),
-            isPremium: index % 3 === 0,
-            category: annonce.categorieNom,
-            vendeurId: annonce.vendeur?.id,
-            description: annonce.description
-          }));
-          setFeaturedListings(transformedResults);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching category listings:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatNumber = (num) => {
-    if (num >= 1000000) {
-      return Math.floor(num / 100000) / 10 + 'M+';
-    } else if (num >= 1000) {
-      return Math.floor(num / 100) / 10 + 'K+';
-    }
-    return num.toString();
-  };
-
-  const fetchCategories = async () => {
-    try {
-      // Using the correct endpoint from your controllers
-      const response = await fetch(`${API_BASE_URL}/api/user/categories`);
-      if (!response.ok) throw new Error('Failed to fetch categories');
-      
-      const responseData = await response.json();
-      const categoriesData = responseData.success ? responseData.data : [];
-      
       // Transform categories data to match frontend expectations
       const transformedCategories = await Promise.all(
-        categoriesData.map(async (cat, index) => ({
+        categories.map(async (cat, index) => ({
           name: cat.nom,
           icon: getCategoryIcon(cat.nom),
           count: await getCategoryCount(cat.id), // Get real count
@@ -240,7 +100,6 @@ const MarketplaceHomepage = () => {
           id: cat.id
         }))
       );
-      
       setCategories(transformedCategories);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -424,15 +283,15 @@ const MarketplaceHomepage = () => {
   };
 
   const handleLogin = () => {
-    // Navigate to login page
+    // Simulate login and store user in localStorage (replace with real login logic)
+    // Example: after successful login, store user object
+    // const userData = { prenom: 'John', id: 123 };
+    // localStorage.setItem('user', JSON.stringify(userData));
+    // setUser(userData);
     window.location.href = '/login';
   };
 
-  const handleSignOut = () => {
-    localStorage.removeItem('user');
-    setUser(null);
-    setFavorites(new Set());
-  };
+
 
   // Helper functions
   const getCategoryIcon = (categoryName) => {
@@ -627,17 +486,7 @@ const MarketplaceHomepage = () => {
       fontSize: '0.875rem',
       marginRight: '0.5rem'
     },
-    signOutButton: {
-      background: '#ef4444',
-      color: 'white',
-      padding: '0.5rem 1rem',
-      borderRadius: '0.5rem',
-      border: 'none',
-      cursor: 'pointer',
-      fontSize: '0.875rem',
-      fontWeight: '500',
-      transition: 'all 0.2s'
-    },
+
     
     // Hero styles
     hero: {
@@ -1191,60 +1040,7 @@ const MarketplaceHomepage = () => {
             </div>
             {/* Settings Icon */}
             <div style={{ position: 'relative', display: 'inline-block' }}>
-              <button style={styles.navButton} onClick={() => setShowSettings(!showSettings)}>
-                <Settings size={24} />
-              </button>
-              {showSettings && (
-                <div style={{
-                  position: 'absolute',
-                  top: 32,
-                  right: 0,
-                  width: 220,
-                  background: 'white',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
-                  borderRadius: 12,
-                  zIndex: 100,
-                  padding: 12,
-                }}>
-                  <h4 style={{ margin: '0 0 10px 0', fontWeight: 'bold', fontSize: '1.05rem', color: '#1e1b4b' }}>Settings</h4>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <button
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 10,
-                        background: '#F3F4F6', border: 'none', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', fontSize: '1rem', color: '#1e1b4b', fontWeight: 500
-                      }}
-                      onClick={() => {
-                        setShowSettings(false);
-                        navigate('/edit-profile');
-                      }}
-                    >
-                      <Edit size={18} /> Edit Profile
-                    </button>
-                    <button style={{
-                      display: 'flex', alignItems: 'center', gap: 10,
-                      background: '#F3F4F6', border: 'none', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', fontSize: '1rem', color: '#1e1b4b', fontWeight: 500
-                    }}>
-                      <Key size={18} /> Change Password
-                    </button>
-                    <button style={{
-                      display: 'flex', alignItems: 'center', gap: 10,
-                      background: '#F3F4F6', border: 'none', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', fontSize: '1rem', color: '#1e1b4b', fontWeight: 500
-                    }}>
-                      <BellIcon size={18} /> Notification Preferences
-                    </button>
-                    <button style={{
-                      display: 'flex', alignItems: 'center', gap: 10,
-                      background: '#F3F4F6', border: 'none', borderRadius: 8, padding: '8px 12px', cursor: 'pointer', fontSize: '1rem', color: '#EF4444', fontWeight: 500
-                    }} onClick={handleSignOut}>
-                      <LogOut size={18} /> Logout
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
-            <button style={styles.navButton}>
-              <Heart size={24} />
-            </button>
             {/* Cart Icon and Popup */}
             <div style={{ position: 'relative', display: 'inline-block' }}>
               <button style={styles.navButton} onClick={() => setShowCart((prev) => !prev)}>
@@ -1324,14 +1120,9 @@ const MarketplaceHomepage = () => {
 
 
             {user ? (
-              <>
-                <span style={styles.userGreeting}>
-                  Hello, {user.prenom}!
-                </span>
-                <button onClick={handleSignOut} style={styles.signOutButton}>
-                  Sign Out
-                </button>
-              </>
+              <span style={styles.userGreeting}>
+                Hello, {user.prenom}!
+              </span>
             ) : (
               <button onClick={handleLogin} style={styles.signInButton}>
                 Sign In
