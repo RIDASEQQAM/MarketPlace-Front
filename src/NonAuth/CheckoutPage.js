@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle, CreditCard, Truck, User, ShoppingCart, ChevronRight, Search, Filter, Heart, Star, MapPin, Zap, TrendingUp, Award, Settings, LogOut, Key, Bell as BellIcon, Edit, Menu } from 'lucide-react';
+import { CheckCircle, CreditCard, Truck, User, ShoppingCart, ChevronRight, Search, Filter, Star, MapPin, Zap, TrendingUp, Award, Settings, LogOut, Key, Bell as BellIcon, Edit, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const steps = [
@@ -101,7 +101,7 @@ export default function CheckoutPage() {
             }}
             onMouseEnter={e => e.target.style.background = '#ef4444'}
             onMouseLeave={e => e.target.style.background = 'none'}
-            >Sign Out</button>
+            >Déconnexion</button>
           </div>
         </div>
       </header>

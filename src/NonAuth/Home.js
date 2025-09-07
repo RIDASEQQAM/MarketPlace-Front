@@ -1248,7 +1248,7 @@ const MarketplaceHomepage = () => {
             {/* Cart Icon and Popup */}
             <div style={{ position: 'relative', display: 'inline-block' }}>
               <button style={styles.navButton} onClick={() => setShowCart((prev) => !prev)}>
-                <ShoppingCart size={24} />
+                <Heart size={24} />
                 {cartItems && cartItems.length > 0 && (
                   <span style={{
                     position: 'absolute',
@@ -1281,7 +1281,7 @@ const MarketplaceHomepage = () => {
                   padding: 16,
                   minHeight: 120
                 }}>
-                  <h4 style={{ margin: '0 0 12px 0', fontWeight: 'bold', fontSize: '1.1rem', color: '#1e1b4b' }}>Cart</h4>
+                  <h4 style={{ margin: '0 0 12px 0', fontWeight: 'bold', fontSize: '1.1rem', color: '#1e1b4b' }}>Favoris</h4>
                   {cartItems.length === 0 ? (
                     <div style={{ color: '#888' }}>Your cart is empty</div>
                   ) : (
